@@ -168,8 +168,35 @@ public class OrderProcessorTest {
 
             return latestOrder.getID();
         }
+        @Test
+        public void testGetExecutedTradesForInstrument() {
+            // Create and add some executed trades with different instruments for testing
+            Trade trade1 = new Trade("BTC", 10, 45000.0, System.currentTimeMillis(), "buy", null, null);
+            Trade trade2 = new Trade("ETH", 5, 2500.0, System.currentTimeMillis(), "sell", null, null);
+            Trade trade3 = new Trade("BTC", 7, 46000.0, System.currentTimeMillis(), "buy", null, null);
+            Trade trade4 = new Trade("ETH", 3, 2400.0, System.currentTimeMillis(), "sell", null, null);
 
+            // Add the trades to the OrderProcessor's executed trades list
+            orderProcessor.recordExecuted(trade1);
+            orderProcessor.recordExecuted(trade2);
+            orderProcessor.recordExecuted(trade3);
+            orderProcessor.recordExecuted(trade4);
 
+            // Test for executed trades with instrument "BTC"
+            assertTrue(orderProcessor.getExecutedTradesForInstrument("BTC").contains(trade1));
+            assertTrue(orderProcessor.getExecutedTradesForInstrument("BTC").contains(trade3));
+            assertFalse(orderProcessor.getExecutedTradesForInstrument("BTC").contains(trade2));
+            assertFalse(orderProcessor.getExecutedTradesForInstrument("BTC").contains(trade4));
+
+            // Test for executed trades with instrument "ETH"
+            assertTrue(orderProcessor.getExecutedTradesForInstrument("ETH").contains(trade2));
+            assertTrue(orderProcessor.getExecutedTradesForInstrument("ETH").contains(trade4));
+            assertFalse(orderProcessor.getExecutedTradesForInstrument("ETH").contains(trade1));
+            assertFalse(orderProcessor.getExecutedTradesForInstrument("ETH").contains(trade3));
+
+            // Test for executed trades with an unsupported instrument
+            assertTrue(orderProcessor.getExecutedTradesForInstrument("USDT").isEmpty());
+        }
     @Test
     public void testCancelNonExistentOrder() {
         // Attempt to cancel a non-existent order

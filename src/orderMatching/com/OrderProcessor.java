@@ -67,7 +67,6 @@ public class OrderProcessor {
     }
 
     // Process a single order
- // Process a single order
     private void processOrder(Order order) {
         // Ensure that an order book exists for the instrument
         addOrUpdateOrderBook(order.getInstrument());
@@ -104,7 +103,7 @@ public class OrderProcessor {
     // Method to place a new buy or sell order
     public synchronized void placeOrder(String instrument, String orderType, int quantity, double price) {
         // Generate a unique ID for the order using the Order class's getNextOrderId method
-       int orderID = Order.getNextOrderId();
+        int orderID = Order.getNextOrderId();
 
         // Create a new order with the specified instrument, order ID, quantity, price, and order type
         Order order = new Order(orderID, instrument, quantity, price, orderType);
@@ -112,7 +111,6 @@ public class OrderProcessor {
         // Receive and process the order
         receiveOrder(order);
     }
-
 
     // Method to retrieve the current order book for a specific instrument
     public synchronized OrderBook getOrderBook(String instrument) {
@@ -126,15 +124,21 @@ public class OrderProcessor {
     }
 
     // Method to retrieve executed trades for a specific instrument
-    public synchronized List<Trade> getExecutedTrades(String instrument) {
-        OrderBook orderBook = orderBooks.get(instrument);
-        if (orderBook != null) {
-            return orderBook.getExecutedTrades();
-        } else {
-            // Handle the case where the instrument is not supported
-            System.out.println("Instrument not supported: " + instrument);
-            return new ArrayList<>(); // Return an empty list in case of unsupported instrument
+    public synchronized List<Trade> getExecutedTradesForInstrument(String instrument) {
+        List<Trade> tradesForInstrument = new ArrayList<>();
+
+        for (Trade trade : executedTrades) {
+            if (trade.getInstrument().equals(instrument)) {
+                tradesForInstrument.add(trade);
+            }
         }
+
+        return tradesForInstrument;
+    }
+
+    // Method to retrieve all executed trades
+    public synchronized List<Trade> getAllExecutedTrades() {
+        return executedTrades;
     }
 
     // Synchronized method to cancel an order by orderId (int version)
@@ -168,11 +172,6 @@ public class OrderProcessor {
         // This could involve storing it in a data structure or sending it to an external system.
         // For example, you can add the trade to a list of executed trades.
         executedTrades.add(trade);
-    }
-
-    // Method to retrieve the list of executed trades
-    public synchronized List<Trade> getExecutedTrades() {
-        return executedTrades;
     }
 
     // Method to process all orders in the order books
